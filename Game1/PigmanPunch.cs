@@ -94,6 +94,7 @@ namespace Game1
             for (int x = 0; x < gameObjectManager.gameObjects.Count; x++)
             {
                 spriteBatch.Draw(gameObjectManager.gameObjects[x].texture, gameObjectManager.gameObjects[x].position);
+                spriteBatch.Draw(gameObjectManager.gameObjects[x].texture, gameObjectManager.gameObjects[x].position);
             }
             spriteBatch.End();
 
@@ -105,7 +106,7 @@ namespace Game1
             if (gameObjectManager.gameObjectTextures.ToList().Where(x => x.Key == objectType).Count() == 0)
                 gameObjectManager.gameObjectTextures.Add(objectType, Content.Load<Texture2D>(objectType));
 
-            gameObjectManager.gameObjects.Add(new PigMan(gameObjectManager.gameObjectTextures[objectType], Vector2.Zero));
+            gameObjectManager.gameObjects.Add(new PigMan(gameObjectManager.gameObjectTextures[objectType], objectPos));
             
         }
 
