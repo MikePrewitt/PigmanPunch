@@ -16,12 +16,6 @@ namespace Game1
         SpriteBatch spriteBatch;
         GameObjectManager gameObjectManager;
 
-        //// Set the coordinates to draw the sprite at.
-        //Vector2 spritePosition = Vector2.Zero;
-
-        //// Store some information about the sprite's motion.
-        //Vector2 spriteSpeed = new Vector2(50.0f, 50.0f);
-
         public PigmanPunch()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -47,6 +41,8 @@ namespace Game1
         /// </summary>
         protected override void LoadContent()
         {
+
+            LoadLevel("Level1");
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -78,8 +74,6 @@ namespace Game1
 
             Gravity();
 
-            //UpdateObjectPositions();
-
             base.Update(gameTime);
         }
 
@@ -93,6 +87,10 @@ namespace Game1
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            
+            //Draw background
+            spriteBatch.Draw(gameObjectManager.backgroundTexture, new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height), Color.White);
+
             for (int x = 0; x < gameObjectManager.gameObjects.Count; x++)
             {
                 spriteBatch.Draw(gameObjectManager.gameObjects[x].texture, gameObjectManager.gameObjects[x].position);
@@ -111,14 +109,21 @@ namespace Game1
             
         }
 
+        protected void LoadLevel(string level)
+        {
+            gameObjectManager.backgroundTexture = Content.Load<Texture2D>(level);
+        }
+
         protected void HandleInput()
         {
             foreach (var item in gameObjectManager.gameObjects.Where(x => x.objectType == "PigMan").ToList())
             {
                 if (Keyboard.GetState().IsKeyDown(Keys.W))
-                    item.Jump();
+                    item.MoveUp();
                 if (Keyboard.GetState().IsKeyDown(Keys.A))
                     item.MoveLeft();
+                if (Keyboard.GetState().IsKeyDown(Keys.S))
+                    item.MoveDown();
                 if (Keyboard.GetState().IsKeyDown(Keys.D))
                     item.MoveRight();
                 if (Keyboard.GetState().IsKeyDown(Keys.Space))
@@ -135,7 +140,8 @@ namespace Game1
         {
             for (int x = 0; x < gameObjectManager.gameObjects.Count; x++)
             {
-                if (gameObjectManager.gameObjects[x].position.Y < 480 - gameObjectManager.gameObjects[x].objectBounds.Height)
+                //Find out if the object not currently grounded
+                if (gameObjectManager.gameObjects[x].position.Y < Window.ClientBounds.Height - gameObjectManager.gameObjects[x].objectBounds.Height + gameObjectManager.gameObjects[x].groundPosition)
                 {
                     gameObjectManager.gameObjects[x].velocity.Y += .2f;
                 }
@@ -156,13 +162,15 @@ namespace Game1
 
         //Game objects
         public List<GameObject> gameObjects = new List<GameObject>();
+
+        public Texture2D backgroundTexture;
     }
 
     public class GameObject
     {
         public Texture2D texture;
-        public Vector2 position;
-        public Vector2 velocity;
+        public Vector2 position, velocity;
+        public int groundPosition;
         public Rectangle objectBounds;
         public string objectType;
 
@@ -176,10 +184,28 @@ namespace Game1
             position.X += 5;
         }
 
+        public void MoveUp()
+        {
+            if (velocity.Y == 0)
+            {
+                position.Y -= 5;
+                groundPosition -= 5;
+            }
+        }
+
+        public void MoveDown()
+        {
+            if (velocity.Y == 0)
+            {
+                position.Y += 5;
+                groundPosition += 5;
+            }
+        }
+
         public void Jump()
         {
             if (velocity.Y == 0)
-                velocity.Y = -10;
+                velocity.Y = -8;
         }
     }
 
